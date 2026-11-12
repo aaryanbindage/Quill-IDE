@@ -27,7 +27,7 @@ detects `python3`, `python` or `py -3`; override with the `quill.python` setting
 - **macOS (Apple Silicon):** unzip `QuillIDE-macos-arm64.zip`. If macOS blocks it, right-click > Open.
 
 Install [Python 3](https://www.python.org/downloads/) first (tick *Add python.exe to PATH* on Windows).
-Building programs needs clang (on Windows, LLVM from https://releases.llvm.org).
+Building programs needs `clang`; on Windows it also needs `gcc` from a MinGW-w64 toolchain (such as w64devkit or winlibs) on `PATH`, which links the program.
 
 ## Build
 
