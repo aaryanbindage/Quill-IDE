@@ -26,10 +26,14 @@ jobs:
           - os: windows-2022
             target: vscode-win32-x64
             asset: QuillIDE-windows-x64.zip
+            installers: true
     runs-on: ${{ matrix.os }}
     env:
       TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
+      - name: Keep line endings as-is (patches are LF)
+        shell: bash
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
@@ -49,6 +53,18 @@ jobs:
       - name: Build
         working-directory: vscode
         run: pnpm run gulp ${{ matrix.target }}
+      - name: Build Windows installers
+        if: matrix.installers
+        working-directory: vscode
+        shell: bash
+        run: |
+          pnpm run gulp vscode-win32-x64-inno-updater
+          pnpm run gulp vscode-win32-x64-user-setup
+          pnpm run gulp vscode-win32-x64-system-setup
+          VERSION="${TAG#v}"
+          mkdir -p ../dist
+          cp .build/win32-x64/user-setup/QuillIDESetup.exe   "../dist/QuillIDE-Setup-${VERSION}-x64.exe"
+          cp .build/win32-x64/system-setup/QuillIDESetup.exe "../dist/QuillIDE-Setup-${VERSION}-x64-system.exe"
       - name: Archive (macOS)
         if: runner.os == 'macOS'
         shell: bash
@@ -61,4 +77,6 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "$TAG" "${{ matrix.asset }}" --clobber
+        run: |
+          gh release upload "$TAG" "${{ matrix.asset }}" --clobber
+          if [ -d dist ]; then gh release upload "$TAG" dist/*.exe --clobber; fi

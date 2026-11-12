@@ -18,6 +18,17 @@ macOS (Apple Silicon) and Windows (x64). Releases are built by `.github/workflow
 macOS and Windows runners when a `v*` tag is pushed. Python 3 must be installed (the extension
 detects `python3`, `python` or `py -3`; override with the `quill.python` setting).
 
+## Install
+
+- **Windows:** download `QuillIDE-Setup-<version>-x64.exe` from Releases and run it (per-user, no
+  administrator needed). `QuillIDE-Setup-<version>-x64-system.exe` installs for all users.
+  There is also a portable `QuillIDE-windows-x64.zip`. Installers are unsigned, so SmartScreen
+  shows "Windows protected your PC": choose *More info*, then *Run anyway*.
+- **macOS (Apple Silicon):** unzip `QuillIDE-macos-arm64.zip`. If macOS blocks it, right-click > Open.
+
+Install [Python 3](https://www.python.org/downloads/) first (tick *Add python.exe to PATH* on Windows).
+Building programs needs clang (on Windows, LLVM from https://releases.llvm.org).
+
 ## Build
 
 Requires Node 24 (see VS Code's `.nvmrc`), pnpm 12, Python 3 and clang.
