@@ -1,0 +1,64 @@
+name: Release
+
+# Builds Quill IDE for Windows and macOS when a version tag is pushed (or on demand)
+# and attaches the archives to the GitHub release for that tag.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach to (e.g. v0.2.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: vscode-darwin-arm64
+            asset: QuillIDE-macos-arm64.zip
+          - os: windows-2022
+            target: vscode-win32-x64
+            asset: QuillIDE-windows-x64.zip
+    runs-on: ${{ matrix.os }}
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Prepare VS Code source with the Quill overlay
+        shell: bash
+        run: scripts/prepare.sh vscode
+      - uses: actions/setup-node@v4
+        with: { node-version-file: vscode/.nvmrc }
+      - name: Install pnpm
+        shell: bash
+        run: |
+          PNPM=$(node -p "require('./vscode/package.json').packageManager.split('@')[1]")
+          npm install -g "pnpm@$PNPM"
+      - name: Install dependencies
+        working-directory: vscode
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        working-directory: vscode
+        run: pnpm run gulp ${{ matrix.target }}
+      - name: Archive (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: ditto -c -k --keepParent "VSCode-darwin-arm64/Quill IDE.app" "${{ matrix.asset }}"
+      - name: Archive (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path "VSCode-win32-x64\*" -DestinationPath "${{ matrix.asset }}"
+      - name: Upload to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$TAG" "${{ matrix.asset }}" --clobber

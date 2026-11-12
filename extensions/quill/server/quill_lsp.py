@@ -11,6 +11,7 @@ from QUILL_COMPILER_DIR, so what it reports is exactly what `quill build` would 
 import builtins
 import json
 import os
+import pathlib
 import queue
 import re
 import sys
@@ -71,12 +72,28 @@ def notify(method, params):
     send({"jsonrpc": "2.0", "method": method, "params": params})
 
 
-def uri_to_path(uri):
-    return urllib.request.url2pathname(urllib.parse.urlparse(uri).path)
+def uri_to_path(uri, windows=None):
+    """file URI -> local path. VS Code sends Windows drives as /c%3A/dir, so decode first,
+    then drop the slash before the drive letter."""
+    windows = (os.name == "nt") if windows is None else windows
+    parsed = urllib.parse.urlparse(uri)
+    path = urllib.parse.unquote(parsed.path)
+    if windows:
+        if re.match(r"^/[A-Za-z]:", path):
+            path = path[1:]
+        path = path.replace("/", "\\")
+        if parsed.netloc and parsed.netloc != "localhost":      # \\server\share
+            path = "\\\\" + parsed.netloc + path
+    return path
 
 
 def path_to_uri(path):
-    return "file://" + urllib.parse.quote(os.path.abspath(path))
+    return pathlib.Path(os.path.abspath(path)).as_uri()
+
+
+def same_file(a, b):
+    """Path equality that ignores case on Windows and follows symlinks elsewhere."""
+    return os.path.normcase(os.path.realpath(a)) == os.path.normcase(os.path.realpath(b))
 
 
 # ───────────────────────────── analysis ─────────────────────────────
@@ -93,7 +110,7 @@ class Workspace:
         if isinstance(file, (str, os.PathLike)):
             real = os.path.realpath(file)
             for uri, text in self.docs.items():
-                if os.path.realpath(uri_to_path(uri)) == real:
+                if same_file(uri_to_path(uri), real):
                     import io
                     return io.StringIO(text)
         return builtins.open(file, *a, **kw)
@@ -162,7 +179,7 @@ class Workspace:
         lines = text.split("\n")
         msg = e.msg
         line = e.line or 1
-        if e.file and os.path.realpath(e.file) != os.path.realpath(here) and e.file != "<built-in>":
+        if e.file and not same_file(e.file, here) and e.file != "<built-in>":
             msg = f"in {os.path.basename(e.file)}:{line}: {msg}"
             line = 1
         line = max(1, min(line, len(lines)))
@@ -465,7 +482,7 @@ def location_of(decl_file, line1, name):
         return None
     # prefer an unsaved buffer
     for u, t in ws.docs.items():
-        if os.path.realpath(uri_to_path(u)) == os.path.realpath(decl_file):
+        if same_file(uri_to_path(u), decl_file):
             text = t
     return {"uri": path_to_uri(decl_file), "range": name_range(text, line1, name)}
 

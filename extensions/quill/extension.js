@@ -3,22 +3,41 @@ const path = require('path');
 const fs = require('fs');
 const { startLanguageServer } = require('./client');
 
-let terminal;
+const cp = require('child_process');
+
+let pythonCache;
+
+// The interpreter that runs the compiler and language server. Honours the quill.python
+// setting; otherwise tries python3, python and (Windows) py -3 and keeps the first that works.
+function detectPython() {
+	const configured = vscode.workspace.getConfiguration('quill').get('python');
+	if (configured) { return { cmd: configured, args: [] }; }
+	if (pythonCache) { return pythonCache; }
+	const candidates = process.platform === 'win32'
+		? [['py', '-3'], ['python'], ['python3']]
+		: [['python3'], ['python']];
+	for (const [cmd, ...args] of candidates) {
+		const r = cp.spawnSync(cmd, [...args, '-c', 'import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)'], { timeout: 8000 });
+		if (r.status === 0) { return (pythonCache = { cmd, args }); }
+	}
+	return { cmd: candidates[0][0], args: candidates[0].slice(1) };
+}
 
 function compiler(context) {
-	const cfg = vscode.workspace.getConfiguration('quill');
-	const configured = cfg.get('compilerPath');
+	const configured = vscode.workspace.getConfiguration('quill').get('compilerPath');
 	if (configured && fs.existsSync(configured)) { return configured; }
 	return path.join(context.extensionPath, 'compiler', 'quill.py');
 }
 
-function term() {
-	if (!terminal || terminal.exitStatus) { terminal = vscode.window.createTerminal('Quill'); }
-	terminal.show(true);
-	return terminal;
+// Run a command in the integrated terminal. ShellExecution quotes every argument for the
+// shell in use (bash, zsh, PowerShell or cmd), so paths with spaces work on every platform.
+async function runInTerminal(name, command, args, cwd) {
+	const strong = a => ({ value: a, quoting: vscode.ShellQuoting.Strong });
+	const exec = new vscode.ShellExecution(strong(command), args.map(strong), cwd ? { cwd } : undefined);
+	const task = new vscode.Task({ type: 'quill' }, vscode.TaskScope.Workspace, name, 'quill', exec);
+	task.presentationOptions = { reveal: vscode.TaskRevealKind.Always, panel: vscode.TaskPanelKind.Shared, clear: true, focus: false };
+	await vscode.tasks.executeTask(task);
 }
-
-const q = s => `"${s.replace(/(["\\$`])/g, '\\$1')}"`;
 
 async function activeQuillFile() {
 	const ed = vscode.window.activeTextEditor;
@@ -31,14 +50,15 @@ async function activeQuillFile() {
 }
 
 function activate(context) {
-	const py = () => vscode.workspace.getConfiguration('quill').get('python') || 'python3';
-	const run = (sub, extra = '') => async () => {
+	const quill = (name, sub, extra = []) => async () => {
 		const file = await activeQuillFile();
 		if (!file) { return; }
-		term().sendText(`${py()} ${q(compiler(context))} ${sub} ${q(file)} ${extra}`.trim());
+		const py = detectPython();
+		await runInTerminal(name, py.cmd, [...py.args, compiler(context), sub, file, ...extra], path.dirname(file));
 	};
 
-	startLanguageServer(context, py());
+	const py0 = detectPython();
+	startLanguageServer(context, py0);
 
 	const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 	status.text = '$(play) Run';
@@ -53,22 +73,24 @@ function activate(context) {
 	context.subscriptions.push(
 		status,
 		vscode.window.onDidChangeActiveTextEditor(sync),
-		vscode.commands.registerCommand('quill.run', run('run')),
-		vscode.commands.registerCommand('quill.runChecked', run('run', '--check')),
-		vscode.commands.registerCommand('quill.emit', run('emit')),
-		vscode.commands.registerCommand('quill.hood', run('hood')),
+		vscode.commands.registerCommand('quill.run', quill('Quill: run', 'run')),
+		vscode.commands.registerCommand('quill.runChecked', quill('Quill: run (memory check)', 'run', ['--check'])),
+		vscode.commands.registerCommand('quill.emit', quill('Quill: LLVM IR', 'emit')),
+		vscode.commands.registerCommand('quill.hood', quill('Quill: hood', 'hood')),
 		vscode.commands.registerCommand('quill.build', async () => {
 			const file = await activeQuillFile();
 			if (!file) { return; }
-			const out = file.replace(/\.ql$/, '');
-			term().sendText(`${py()} ${q(compiler(context))} build ${q(file)} -o ${q(out)} && echo "Built ${out}"`);
+			const out = file.replace(/\.ql$/, process.platform === 'win32' ? '.exe' : '');
+			const py = detectPython();
+			await runInTerminal('Quill: build', py.cmd, [...py.args, compiler(context), 'build', file, '-o', out], path.dirname(file));
 		}),
 		vscode.commands.registerCommand('quill.newProject', async () => {
 			const name = await vscode.window.showInputBox({ prompt: 'Project name' });
 			if (!name) { return; }
 			const dir = await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Create here' });
 			if (!dir || !dir[0]) { return; }
-			term().sendText(`cd ${q(dir[0].fsPath)} && ${py()} ${q(compiler(context))} new ${q(name)}`);
+			const py = detectPython();
+			await runInTerminal('Quill: new project', py.cmd, [...py.args, compiler(context), 'new', name], dir[0].fsPath);
 		})
 	);
 }

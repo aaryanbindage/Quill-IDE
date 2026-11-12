@@ -12,12 +12,19 @@ applies these changes, and builds it.
 | `patches/product.json.patch` | Branding (name, data folder, bundle id) and JetBrains-style default settings |
 | `scripts/setup.sh` | Clone, patch, install, compile |
 
+## Platforms
+
+macOS (Apple Silicon) and Windows (x64). Releases are built by `.github/workflows/release.yml` on
+macOS and Windows runners when a `v*` tag is pushed. Python 3 must be installed (the extension
+detects `python3`, `python` or `py -3`; override with the `quill.python` setting).
+
 ## Build
 
 Requires Node 24 (see VS Code's `.nvmrc`), pnpm 12, Python 3 and clang.
 
-    scripts/setup.sh
-    vscode/scripts/code.sh path/to/project
+    scripts/setup.sh          # macOS / Linux / Git Bash
+    scripts/setup.ps1         # Windows PowerShell (needs Git for Windows, VS C++ build tools)
+    vscode/scripts/code.sh path/to/project      # Windows: vscode\scripts\code.bat
 
 ## Status
 

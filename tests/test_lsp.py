@@ -58,9 +58,16 @@ class Main:
 '''
 
 failures = []
+sys.path.insert(0, os.path.dirname(SERVER))
+import quill_lsp
 def check(name, cond, info=""):
     print(("pass " if cond else "FAIL ") + name + ("" if cond else f"  {info}"))
     if not cond: failures.append(name)
+
+for uri, want in [("file:///c%3A/Users/a%20b/x.ql", "c:\\Users\\a b\\x.ql"), ("file:///C:/Users/x.ql", "C:\\Users\\x.ql"), ("file://srv/share/x.ql", "\\\\srv\\share\\x.ql")]:
+    got = quill_lsp.uri_to_path(uri, windows=True)
+    check("windows uri " + uri, got == want, got)
+check("posix uri", quill_lsp.uri_to_path("file:///Users/a%20b/x.ql", windows=False) == "/Users/a b/x.ql")
 
 c = Client()
 with tempfile.TemporaryDirectory() as d:

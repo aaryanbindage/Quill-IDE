@@ -1,27 +1,51 @@
 diff --git a/product.json b/product.json
-index dfa7a76a..f73a6bda 100644
+index dfa7a76a..681618e7 100644
 --- a/product.json
 +++ b/product.json
-@@ -1,9 +1,9 @@
+@@ -1,10 +1,10 @@
  {
 -	"nameShort": "Code - OSS",
 -	"nameLong": "Code - OSS",
 -	"applicationName": "code-oss",
 -	"dataFolderName": ".vscode-oss",
 -	"sharedDataFolderName": ".vscode-oss-shared",
+-	"win32MutexName": "vscodeoss",
 +	"nameShort": "Quill IDE",
 +	"nameLong": "Quill IDE",
 +	"applicationName": "quill-ide",
 +	"dataFolderName": ".quill-ide",
 +	"sharedDataFolderName": ".quill-ide-shared",
- 	"win32MutexName": "vscodeoss",
++	"win32MutexName": "quillide",
  	"licenseName": "MIT",
  	"licenseUrl": "https://github.com/microsoft/vscode/blob/main/LICENSE.txt",
-@@ -25,18 +25,47 @@
- 	"win32ShellNameShort": "C&ode - OSS",
- 	"win32TunnelServiceMutex": "vscodeoss-tunnelservice",
- 	"win32TunnelMutex": "vscodeoss-tunnel",
+ 	"serverLicenseUrl": "https://github.com/microsoft/vscode/blob/main/LICENSE.txt",
+@@ -14,29 +14,58 @@
+ 	"serverApplicationName": "code-server-oss",
+ 	"serverDataFolderName": ".vscode-server-oss",
+ 	"tunnelApplicationName": "code-tunnel-oss",
+-	"win32DirName": "Microsoft Code OSS",
+-	"win32NameVersion": "Microsoft Code OSS",
+-	"win32RegValueName": "CodeOSS",
+-	"win32x64AppId": "{{D77B7E06-80BA-4137-BCF4-654B95CCEBC5}",
+-	"win32arm64AppId": "{{D1ACE434-89C5-48D1-88D3-E2991DF85475}",
+-	"win32x64UserAppId": "{{CC6B787D-37A0-49E8-AE24-8559A032BE0C}",
+-	"win32arm64UserAppId": "{{3AEBF0C8-F733-4AD4-BADE-FDB816D53D7B}",
+-	"win32AppUserModelId": "Microsoft.CodeOSS",
+-	"win32ShellNameShort": "C&ode - OSS",
+-	"win32TunnelServiceMutex": "vscodeoss-tunnelservice",
+-	"win32TunnelMutex": "vscodeoss-tunnel",
 -	"darwinBundleIdentifier": "com.visualstudio.code.oss",
++	"win32DirName": "Quill IDE",
++	"win32NameVersion": "Quill IDE",
++	"win32RegValueName": "QuillIDE",
++	"win32x64AppId": "{{4A50543C-1BB0-492E-989F-039CBF13B741}",
++	"win32arm64AppId": "{{332E9D59-6817-46F8-BC80-4CF0F5174FB7}",
++	"win32x64UserAppId": "{{0A1F88D9-D801-45EF-8D2C-F1D125BED4E4}",
++	"win32arm64UserAppId": "{{8CE51EE2-9582-492C-872A-C5560E463578}",
++	"win32AppUserModelId": "Quill.QuillIDE",
++	"win32ShellNameShort": "&Quill IDE",
++	"win32TunnelServiceMutex": "quillide-tunnelservice",
++	"win32TunnelMutex": "quillide-tunnel",
 +	"darwinBundleIdentifier": "dev.quill.ide",
  	"darwinProfileUUID": "47827DD9-4734-49A0-AF80-7E19B11495CC",
  	"darwinProfilePayloadUUID": "CF808BE7-53F3-46C6-A7E2-7EDB98A5E959",

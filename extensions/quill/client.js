@@ -41,11 +41,12 @@ const loc = l => l && new vscode.Location(vscode.Uri.parse(l.uri), rng(l.range))
 const td = doc => ({ uri: doc.uri.toString() });
 
 function startLanguageServer(context, python) {
+	const py = typeof python === 'string' ? { cmd: python, args: [] } : python;
 	const server = path.join(context.extensionPath, 'server', 'quill_lsp.py');
-	const proc = cp.spawn(python, [server], { stdio: ['pipe', 'pipe', 'pipe'] });
+	const proc = cp.spawn(py.cmd, [...py.args, server], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
 	const log = vscode.window.createOutputChannel('Quill Language Server');
 	proc.stderr.on('data', d => log.append(d.toString()));
-	proc.on('error', e => vscode.window.showWarningMessage(`Quill language server could not start (${python}): ${e.message}`));
+	proc.on('error', e => vscode.window.showWarningMessage(`Quill language server could not start (${py.cmd}): ${e.message}`));
 	const diagnostics = vscode.languages.createDiagnosticCollection('quill');
 
 	const rpc = new Rpc(proc, (method, p) => {

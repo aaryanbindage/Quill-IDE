@@ -49,7 +49,7 @@
           "type": "string", "default": "",
           "description": "Path to quill.py. Leave empty to use 'quill' (or python3 quill.py in the workspace)."
         },
-        "quill.python": { "type": "string", "default": "python3", "description": "Python interpreter used to run the compiler." }
+        "quill.python": { "type": "string", "default": "", "description": "Python 3 interpreter used to run the compiler and language server. Leave empty to detect python3, python or py -3." }
       }
     }
   }
