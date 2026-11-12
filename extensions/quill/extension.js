@@ -1,6 +1,7 @@
 const vscode = require('vscode');
 const path = require('path');
 const fs = require('fs');
+const { startLanguageServer } = require('./client');
 
 let terminal;
 
@@ -36,6 +37,8 @@ function activate(context) {
 		if (!file) { return; }
 		term().sendText(`${py()} ${q(compiler(context))} ${sub} ${q(file)} ${extra}`.trim());
 	};
+
+	startLanguageServer(context, py());
 
 	const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 	status.text = '$(play) Run';

@@ -2,29 +2,161 @@
   "scopeName": "source.quill",
   "name": "Quill",
   "patterns": [
-    { "include": "#comment" }, { "include": "#string" }, { "include": "#classdecl" },
-    { "include": "#funcdecl" }, { "include": "#keyword" }, { "include": "#constant" },
-    { "include": "#number" }, { "include": "#type" }, { "include": "#call" }, { "include": "#operator" }
+    { "include": "#comment" },
+    { "include": "#directive" },
+    { "include": "#bring" },
+    { "include": "#classdecl" },
+    { "include": "#funcdecl" },
+    { "include": "#vardecl" },
+    { "include": "#expression" }
   ],
   "repository": {
     "comment": { "match": "#.*$", "name": "comment.line.number-sign.quill" },
-    "string": { "begin": "\"", "end": "\"", "name": "string.quoted.double.quill",
-      "patterns": [{ "match": "\\\\.", "name": "constant.character.escape.quill" }] },
-    "classdecl": { "match": "\\b(class|interface)\\s+([A-Za-z_]\\w*)(?:\\s*(<)\\s*([A-Za-z_][\\w, \\[\\]]*))?",
-      "captures": { "1": { "name": "storage.type.class.quill" }, "2": { "name": "entity.name.type.class.quill" },
-        "3": { "name": "keyword.operator.inherits.quill" }, "4": { "name": "entity.other.inherited-class.quill" } } },
-    "funcdecl": { "match": "\\b(def)\\s+([A-Za-z_]\\w*)",
-      "captures": { "1": { "name": "storage.type.function.quill" }, "2": { "name": "entity.name.function.quill" } } },
-    "keyword": { "patterns": [
-      { "match": "\\b(if|elif|else|while|for|in|break|continue|return|pass|try|catch|finally|throw|bring)\\b", "name": "keyword.control.quill" },
-      { "match": "\\b(public|private|protected|abstract|static|weak|new|and|or|xor|not|instanceof|as)\\b", "name": "keyword.other.quill" },
-      { "match": "\\b(self|super)\\b", "name": "variable.language.quill" } ] },
+
+    "directive": {
+      "match": "^\\s*(native)\\s+(link|libdir|include|source|flag)\\b",
+      "captures": { "1": { "name": "keyword.control.directive.quill" }, "2": { "name": "keyword.other.directive.quill" } }
+    },
+    "bring": {
+      "match": "^\\s*(bring)\\s+([A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*)(?:\\s+(as)\\s+([A-Za-z_]\\w*))?",
+      "captures": {
+        "1": { "name": "keyword.control.import.quill" },
+        "2": { "name": "entity.name.namespace.quill" },
+        "3": { "name": "keyword.control.import.quill" },
+        "4": { "name": "entity.name.namespace.alias.quill" }
+      }
+    },
+
+    "classdecl": {
+      "begin": "\\b(abstract\\s+)?(class|interface)\\s+([A-Za-z_]\\w*)",
+      "beginCaptures": {
+        "1": { "name": "storage.modifier.quill" },
+        "2": { "name": "storage.type.class.quill" },
+        "3": { "name": "entity.name.type.class.quill" }
+      },
+      "end": ":",
+      "patterns": [
+        { "match": "<", "name": "keyword.operator.inherits.quill" },
+        { "include": "#typeparams" },
+        { "match": "\\b([A-Za-z_][\\w]*(?:\\.[A-Za-z_]\\w*)*)\\b", "name": "entity.other.inherited-class.quill" },
+        { "match": ",", "name": "punctuation.separator.quill" }
+      ]
+    },
+    "typeparams": {
+      "begin": "\\[", "end": "\\]",
+      "patterns": [
+        { "match": "\\b[A-Za-z_]\\w*\\b", "name": "entity.name.type.parameter.quill" },
+        { "match": ",", "name": "punctuation.separator.quill" }
+      ]
+    },
+
+    "funcdecl": {
+      "begin": "\\b((?:(?:public|private|protected|abstract|static)\\s+)*)(def)\\s+([A-Za-z_]\\w*)\\s*(\\()",
+      "beginCaptures": {
+        "1": { "name": "storage.modifier.quill" },
+        "2": { "name": "storage.type.function.quill" },
+        "3": { "name": "entity.name.function.quill" },
+        "4": { "name": "punctuation.definition.parameters.begin.quill" }
+      },
+      "end": "(\\))\\s*(?:(->)\\s*((?:weak\\s+)?[A-Za-z_][\\w.]*(?:\\[[^\\]]*\\])?))?",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.parameters.end.quill" },
+        "2": { "name": "keyword.operator.arrow.quill" },
+        "3": { "name": "entity.name.type.quill" }
+      },
+      "patterns": [
+        { "match": "\\bself\\b", "name": "variable.language.self.quill" },
+        { "match": "([A-Za-z_]\\w*)\\s*(:)", "captures": { "1": { "name": "variable.parameter.quill" }, "2": { "name": "punctuation.separator.type.quill" } } },
+        { "include": "#typeref" },
+        { "match": ",", "name": "punctuation.separator.quill" }
+      ]
+    },
+
+    "vardecl": {
+      "match": "^\\s*((?:(?:public|private|protected|static|weak)\\s+)*)([A-Za-z_]\\w*)\\s*(:)\\s*((?:weak\\s+)?[A-Za-z_][\\w.]*(?:\\[[^\\]]*\\])?)",
+      "captures": {
+        "1": { "name": "storage.modifier.quill" },
+        "2": { "name": "variable.other.readwrite.quill" },
+        "3": { "name": "punctuation.separator.type.quill" },
+        "4": { "patterns": [ { "include": "#typeref" } ] }
+      }
+    },
+
+    "typeref": {
+      "patterns": [
+        { "match": "\\b(int|float|bool|str|void)\\b", "name": "support.type.primitive.quill" },
+        { "match": "\\bweak\\b", "name": "storage.modifier.quill" },
+        { "match": "\\b[A-Z][A-Za-z0-9_]*\\b", "name": "entity.name.type.quill" }
+      ]
+    },
+
+    "expression": {
+      "patterns": [
+        { "include": "#string" },
+        { "include": "#number" },
+        { "include": "#constant" },
+        { "include": "#keyword" },
+        { "include": "#newexpr" },
+        { "include": "#member" },
+        { "include": "#call" },
+        { "include": "#type" },
+        { "include": "#constantname" },
+        { "include": "#operator" }
+      ]
+    },
+
+    "string": {
+      "begin": "\"", "end": "\"|$", "name": "string.quoted.double.quill",
+      "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.quill" } },
+      "endCaptures": { "0": { "name": "punctuation.definition.string.end.quill" } },
+      "patterns": [ { "match": "\\\\(?:[ntr0\\\\\"])", "name": "constant.character.escape.quill" },
+                    { "match": "\\\\.", "name": "invalid.illegal.escape.quill" } ]
+    },
+    "number": {
+      "patterns": [
+        { "match": "\\b0[xX][0-9a-fA-F_]+\\b", "name": "constant.numeric.hex.quill" },
+        { "match": "\\b0[bB][01_]+\\b", "name": "constant.numeric.binary.quill" },
+        { "match": "\\b\\d+\\.\\d+\\b", "name": "constant.numeric.float.quill" },
+        { "match": "\\b\\d+\\b", "name": "constant.numeric.integer.quill" }
+      ]
+    },
     "constant": { "match": "\\b(true|false|null)\\b", "name": "constant.language.quill" },
-    "number": { "match": "\\b\\d+(\\.\\d+)?\\b", "name": "constant.numeric.quill" },
-    "type": { "patterns": [
-      { "match": "\\b(int|float|bool|str|void)\\b", "name": "support.type.primitive.quill" },
-      { "match": "\\b[A-Z][A-Za-z0-9_]*\\b", "name": "entity.name.type.quill" } ] },
-    "call": { "match": "\\b([a-z_]\\w*)(?=\\()", "name": "support.function.call.quill" },
-    "operator": { "match": "->|==|!=|<=|>=|[-+*/%<>=]", "name": "keyword.operator.quill" }
+    "keyword": {
+      "patterns": [
+        { "match": "\\b(if|elif|else|while|for|in|break|continue|return|pass|try|catch|finally|throw)\\b", "name": "keyword.control.quill" },
+        { "match": "\\b(and|or|xor|not|instanceof|as)\\b", "name": "keyword.operator.word.quill" },
+        { "match": "\\b(public|private|protected|abstract|static|weak)\\b", "name": "storage.modifier.quill" },
+        { "match": "\\bnew\\b", "name": "keyword.operator.new.quill" },
+        { "match": "\\b(class|interface|def)\\b", "name": "storage.type.quill" },
+        { "match": "\\b(self|super)\\b", "name": "variable.language.quill" }
+      ]
+    },
+    "newexpr": {
+      "match": "\\b(new)\\s+([A-Za-z_][\\w]*(?:\\.[A-Za-z_]\\w*)?)",
+      "captures": { "1": { "name": "keyword.operator.new.quill" }, "2": { "name": "entity.name.type.quill" } }
+    },
+    "member": {
+      "patterns": [
+        { "match": "(\\.)\\s*([A-Za-z_]\\w*)(?=\\s*\\()", "captures": { "1": { "name": "punctuation.accessor.quill" }, "2": { "name": "entity.name.function.member.quill" } } },
+        { "match": "(\\.)\\s*([A-Z][A-Za-z0-9_]*)\\b", "captures": { "1": { "name": "punctuation.accessor.quill" }, "2": { "name": "entity.name.type.quill" } } },
+        { "match": "(\\.)\\s*([A-Za-z_]\\w*)", "captures": { "1": { "name": "punctuation.accessor.quill" }, "2": { "name": "variable.other.property.quill" } } }
+      ]
+    },
+    "call": { "match": "\\b([a-z_]\\w*)(?=\\s*\\()", "name": "support.function.call.quill" },
+    "type": {
+      "patterns": [
+        { "match": "\\b(int|float|bool|str|void)\\b", "name": "support.type.primitive.quill" },
+        { "match": "\\b[A-Z][A-Za-z0-9_]*\\b(?=\\s*[\\[(.])", "name": "entity.name.type.quill" },
+        { "match": "\\b[A-Z][a-z0-9_][A-Za-z0-9_]*\\b", "name": "entity.name.type.quill" }
+      ]
+    },
+    "constantname": { "match": "\\b[A-Z][A-Z0-9_]+\\b", "name": "variable.other.constant.quill" },
+    "operator": {
+      "patterns": [
+        { "match": "->", "name": "keyword.operator.arrow.quill" },
+        { "match": ">>>=|<<=|>>=|>>>|<<|>>|\\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|==|!=|<=|>=", "name": "keyword.operator.quill" },
+        { "match": "[-+*/%<>=&|^~]", "name": "keyword.operator.quill" }
+      ]
+    }
   }
 }

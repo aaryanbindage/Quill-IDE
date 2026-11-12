@@ -115,6 +115,69 @@
       "settings": {
         "foreground": "#0033B3"
       }
+    },
+    {
+      "scope": [
+        "variable.other.property",
+        "variable.other.constant"
+      ],
+      "settings": {
+        "foreground": "#871094"
+      }
+    },
+    {
+      "scope": [
+        "variable.parameter"
+      ],
+      "settings": {
+        "foreground": "#080808"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.namespace",
+        "entity.name.namespace.alias"
+      ],
+      "settings": {
+        "foreground": "#000000"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.function.member"
+      ],
+      "settings": {
+        "foreground": "#00627A"
+      }
+    },
+    {
+      "scope": [
+        "storage.modifier",
+        "keyword.operator.word",
+        "keyword.operator.new",
+        "keyword.control.import",
+        "keyword.control.directive",
+        "keyword.other.directive"
+      ],
+      "settings": {
+        "foreground": "#0033B3"
+      }
+    },
+    {
+      "scope": [
+        "invalid.illegal"
+      ],
+      "settings": {
+        "foreground": "#F50000"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.type.parameter"
+      ],
+      "settings": {
+        "foreground": "#007E8A"
+      }
     }
   ]
 }

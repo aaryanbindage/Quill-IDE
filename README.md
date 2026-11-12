@@ -21,5 +21,18 @@ Requires Node 24 (see VS Code's `.nvmrc`), pnpm 12, Python 3 and clang.
 
 ## Status
 
-Runs from source in development mode; not packaged as an installer. No language server yet
-(see `server/` once added).
+Runs from source in development mode; not packaged as an installer.
+
+## Language server
+
+`extensions/quill/server/quill_lsp.py` is a dependency-free LSP server that imports the bundled
+Quill compiler, so its errors are the compiler's own. It provides diagnostics (syntax and type
+errors as you type), completion (members through `self.`, variables, class names, generics such
+as `List[int]`), hover, go to definition, signature help, document and workspace symbols.
+`extensions/quill/client.js` is a small client that connects it to the editor.
+
+Tests:
+
+    python3 tests/test_lsp.py
+    NODE_PATH=vscode/node_modules node tests/test_grammar.js
+

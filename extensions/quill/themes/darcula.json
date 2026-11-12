@@ -143,6 +143,69 @@
       "settings": {
         "foreground": "#CC7832"
       }
+    },
+    {
+      "scope": [
+        "variable.other.property",
+        "variable.other.constant"
+      ],
+      "settings": {
+        "foreground": "#9876AA"
+      }
+    },
+    {
+      "scope": [
+        "variable.parameter"
+      ],
+      "settings": {
+        "foreground": "#A9B7C6"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.namespace",
+        "entity.name.namespace.alias"
+      ],
+      "settings": {
+        "foreground": "#A9B7C6"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.function.member"
+      ],
+      "settings": {
+        "foreground": "#FFC66D"
+      }
+    },
+    {
+      "scope": [
+        "storage.modifier",
+        "keyword.operator.word",
+        "keyword.operator.new",
+        "keyword.control.import",
+        "keyword.control.directive",
+        "keyword.other.directive"
+      ],
+      "settings": {
+        "foreground": "#CC7832"
+      }
+    },
+    {
+      "scope": [
+        "invalid.illegal"
+      ],
+      "settings": {
+        "foreground": "#FF6B68"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.type.parameter"
+      ],
+      "settings": {
+        "foreground": "#20999D"
+      }
     }
   ]
 }

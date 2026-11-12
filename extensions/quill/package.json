@@ -7,7 +7,8 @@
   "license": "MIT",
   "engines": { "vscode": "^1.90.0" },
   "main": "./extension.js",
-  "activationEvents": [],
+  "activationEvents": ["onLanguage:quill", "onStartupFinished"],
+  "capabilities": {"untrustedWorkspaces": {"supported": true}},
   "categories": ["Programming Languages", "Themes"],
   "contributes": {
     "languages": [{
