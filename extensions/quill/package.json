@@ -1,0 +1,55 @@
+{
+  "name": "quill",
+  "displayName": "Quill Language",
+  "description": "Quill language support, JetBrains-style themes and run tools for Quill IDE",
+  "version": "1.0.0",
+  "publisher": "quill",
+  "license": "MIT",
+  "engines": { "vscode": "^1.90.0" },
+  "main": "./extension.js",
+  "activationEvents": [],
+  "categories": ["Programming Languages", "Themes"],
+  "contributes": {
+    "languages": [{
+      "id": "quill", "aliases": ["Quill", "quill"], "extensions": [".ql"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{ "language": "quill", "scopeName": "source.quill", "path": "./syntaxes/quill.tmLanguage.json" }],
+    "snippets": [{ "language": "quill", "path": "./snippets/quill.json" }],
+    "themes": [
+      { "label": "Quill Darcula", "uiTheme": "vs-dark", "path": "./themes/darcula.json" },
+      { "label": "Quill Light", "uiTheme": "vs", "path": "./themes/light.json" }
+    ],
+    "commands": [
+      { "command": "quill.run", "title": "Run Quill File", "category": "Quill", "icon": "$(play)" },
+      { "command": "quill.runChecked", "title": "Run with Memory Check", "category": "Quill", "icon": "$(shield)" },
+      { "command": "quill.build", "title": "Build Native Executable", "category": "Quill", "icon": "$(package)" },
+      { "command": "quill.emit", "title": "Show LLVM IR", "category": "Quill", "icon": "$(file-code)" },
+      { "command": "quill.hood", "title": "Show What the Compiler Does (hood)", "category": "Quill" },
+      { "command": "quill.newProject", "title": "New Quill Project", "category": "Quill" }
+    ],
+    "menus": {
+      "editor/title/run": [
+        { "command": "quill.run", "when": "resourceLangId == quill", "group": "navigation@1" },
+        { "command": "quill.runChecked", "when": "resourceLangId == quill", "group": "navigation@2" }
+      ],
+      "editor/title": [
+        { "command": "quill.run", "when": "resourceLangId == quill", "group": "navigation@1" }
+      ]
+    },
+    "keybindings": [
+      { "command": "quill.run", "key": "ctrl+shift+r", "mac": "ctrl+r", "when": "resourceLangId == quill" },
+      { "command": "quill.build", "key": "ctrl+f9", "mac": "cmd+f9", "when": "resourceLangId == quill" }
+    ],
+    "configuration": {
+      "title": "Quill",
+      "properties": {
+        "quill.compilerPath": {
+          "type": "string", "default": "",
+          "description": "Path to quill.py. Leave empty to use 'quill' (or python3 quill.py in the workspace)."
+        },
+        "quill.python": { "type": "string", "default": "python3", "description": "Python interpreter used to run the compiler." }
+      }
+    }
+  }
+}

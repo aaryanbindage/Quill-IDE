@@ -1,0 +1,9 @@
+{
+  "Class": { "prefix": "class", "body": ["class ${1:Name}:", "\tdef init(self${2}):", "\t\t$0"] },
+  "Subclass": { "prefix": "classs", "body": ["class ${1:Name} < ${2:Parent}:", "\tdef init(self${3}):", "\t\tsuper.init($4)", "\t\t$0"] },
+  "Main": { "prefix": "main", "body": ["class Main:", "\tstatic def main():", "\t\t$0"] },
+  "Method": { "prefix": "def", "body": ["def ${1:name}(self${2}) -> ${3:void}:", "\t$0"] },
+  "Try": { "prefix": "try", "body": ["try:", "\t$1", "catch e: ${2:Error}:", "\t$0"] },
+  "For range": { "prefix": "forr", "body": ["for ${1:i} in range(${2:0}, ${3:n}):", "\t$0"] },
+  "Print": { "prefix": "pr", "body": ["print($0)"] }
+}

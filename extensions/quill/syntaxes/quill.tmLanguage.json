@@ -1,0 +1,30 @@
+{
+  "scopeName": "source.quill",
+  "name": "Quill",
+  "patterns": [
+    { "include": "#comment" }, { "include": "#string" }, { "include": "#classdecl" },
+    { "include": "#funcdecl" }, { "include": "#keyword" }, { "include": "#constant" },
+    { "include": "#number" }, { "include": "#type" }, { "include": "#call" }, { "include": "#operator" }
+  ],
+  "repository": {
+    "comment": { "match": "#.*$", "name": "comment.line.number-sign.quill" },
+    "string": { "begin": "\"", "end": "\"", "name": "string.quoted.double.quill",
+      "patterns": [{ "match": "\\\\.", "name": "constant.character.escape.quill" }] },
+    "classdecl": { "match": "\\b(class|interface)\\s+([A-Za-z_]\\w*)(?:\\s*(<)\\s*([A-Za-z_][\\w, \\[\\]]*))?",
+      "captures": { "1": { "name": "storage.type.class.quill" }, "2": { "name": "entity.name.type.class.quill" },
+        "3": { "name": "keyword.operator.inherits.quill" }, "4": { "name": "entity.other.inherited-class.quill" } } },
+    "funcdecl": { "match": "\\b(def)\\s+([A-Za-z_]\\w*)",
+      "captures": { "1": { "name": "storage.type.function.quill" }, "2": { "name": "entity.name.function.quill" } } },
+    "keyword": { "patterns": [
+      { "match": "\\b(if|elif|else|while|for|in|break|continue|return|pass|try|catch|finally|throw|bring)\\b", "name": "keyword.control.quill" },
+      { "match": "\\b(public|private|protected|abstract|static|weak|new|and|or|xor|not|instanceof|as)\\b", "name": "keyword.other.quill" },
+      { "match": "\\b(self|super)\\b", "name": "variable.language.quill" } ] },
+    "constant": { "match": "\\b(true|false|null)\\b", "name": "constant.language.quill" },
+    "number": { "match": "\\b\\d+(\\.\\d+)?\\b", "name": "constant.numeric.quill" },
+    "type": { "patterns": [
+      { "match": "\\b(int|float|bool|str|void)\\b", "name": "support.type.primitive.quill" },
+      { "match": "\\b[A-Z][A-Za-z0-9_]*\\b", "name": "entity.name.type.quill" } ] },
+    "call": { "match": "\\b([a-z_]\\w*)(?=\\()", "name": "support.function.call.quill" },
+    "operator": { "match": "->|==|!=|<=|>=|[-+*/%<>=]", "name": "keyword.operator.quill" }
+  }
+}
